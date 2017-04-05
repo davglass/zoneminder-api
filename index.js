@@ -152,7 +152,6 @@ class ZoneMinder {
                     if (all) {
                         return devices.push(item.Monitor);
                     }
-                    console.log(servers, item.Monitor.Serverid);
                     const imgHost = servers[item.Monitor.ServerId].Hostname || this.options.host;
                     const imgBase = `http://${imgHost}/zm/cgi-bin/nph-zms`;
                     devices.push({
