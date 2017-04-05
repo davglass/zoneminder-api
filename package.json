@@ -1,6 +1,6 @@
 {
   "name": "zoneminder",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "ZoneMinder API Client",
   "main": "index.js",
   "dependencies": {
