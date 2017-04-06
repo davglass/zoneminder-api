@@ -72,13 +72,17 @@ class ZoneMinder {
                 console.log('Error', e, url);
             });
             res.on('end', () => {
-                var json;
+                var json, e;
                 try {
                     json = JSON.parse(data);
                 } catch (e) {
                     json = data;
                 }
-                callback(null, json, res);
+                if (json && json.success === false) {
+                    e = json;
+                    json = null;
+                }
+                callback(e, json, res);
             });
         });
         req.on('error', callback);
@@ -188,6 +192,18 @@ class ZoneMinder {
     alarm (id, cmd, callback) {
         const url = `/api/monitors/alarm/id:${id}/command:${cmd}.json`;
         this.fetch(url, callback);
+    }
+
+    version (callback) {
+        this.fetch('/api/host/getVersion.json', callback);
+    }
+
+    status (callback) {
+        this.fetch('/api/host/daemonCheck.json', callback);
+    }
+
+    restart (callback) {
+        this.fetch('/api/states/change/restart.json', callback);
     }
 }
 
