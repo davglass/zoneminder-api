@@ -92,8 +92,17 @@ class ZoneMinder {
         req.end();
     }
 
+    reauth() {
+        delete this._cookies;
+    }
+
     servers(callback) {
         this.fetch('/api/servers.json', (e, json) => {
+            if (e) {
+                this.reauth();
+                this.servers(callback);
+                return;
+            }
             const servers = {};
             json.servers && json.servers.forEach(i => {
                 servers[i.Server.Id] = i.Server;
