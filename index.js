@@ -56,10 +56,10 @@ class ZoneMinder {
             d.headers['content-length'] = post.length;
         }
         d.headers['user-agent'] = '@nodeminder-api';
-        if (Array.isArray(this._cookies)) {
+        if (this._cookies !== null) {
             const cookies = [];
-            this._cookies.forEach((line) => {
-                cookies.push(line.split(';')[0]);
+            Object.keys(this._cookies).forEach((key) => {
+                cookies.push(`${key}=${this._cookies[key]}`);
             });
             d.headers.Cookie = cookies.join('; ') + ';';
         }
@@ -137,7 +137,11 @@ class ZoneMinder {
             if (r.headers['set-cookie']) {
                 cookies = r.headers['set-cookie'];
             }
-            this._cookies = cookies;
+            this._cookies = { };
+            cookies.forEach((line) => {
+                var cookie = line.split(';')[0].split('=');
+                this._cookies[cookie[0]] = cookie[1];
+            });
             callback(null, cookies);
         });
     }
