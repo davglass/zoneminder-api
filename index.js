@@ -56,7 +56,7 @@ class ZoneMinder {
             d.headers['content-length'] = post.length;
         }
         d.headers['user-agent'] = '@nodeminder-api';
-        if (this._cookies !== null) {
+        if (this._cookies) {
             const cookies = [];
             Object.keys(this._cookies).forEach((key) => {
                 cookies.push(`${key}=${this._cookies[key]}`);
