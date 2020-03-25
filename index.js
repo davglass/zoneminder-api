@@ -1,5 +1,6 @@
 const http = require('http-https')
 const parse = require('url').parse;
+const format = require('url').format;
 const stringify = require('querystring').stringify;
 
 const seqSort = (a, b) => {
@@ -45,7 +46,11 @@ class ZoneMinder {
             callback = post;
             post = null;
         }
-        const d = parse(this.options.host + url, true);
+        let d = parse(this.options.host + url, true);
+        if (this._cookies) {
+            d.query.token = this._cookies.access_token;
+            d = parse(format(d), true);
+        }
         var body = null;
         d.method = 'GET';
         d.headers = d.headers || {};
@@ -56,13 +61,7 @@ class ZoneMinder {
             d.headers['content-length'] = post.length;
         }
         d.headers['user-agent'] = '@nodeminder-api';
-        if (this._cookies) {
-            const cookies = [];
-            Object.keys(this._cookies).forEach((key) => {
-                cookies.push(`${key}=${this._cookies[key]}`);
-            });
-            d.headers.Cookie = cookies.join('; ') + ';';
-        }
+
         const req = http.request(d, (res) => {
             var data = '';
             res.on('data', (d) => {
@@ -121,28 +120,12 @@ class ZoneMinder {
 
     auth(callback) {
         this.isAuth = true;
-        this.fetch('/index.php', {
-            username: this.options.user,
-            password: this.options.password,
-            action: 'login',
-            view: 'console'
+        this.fetch('/api/host/login.json', {
+            user: this.options.user,
+            pass: this.options.password,
         }, (e, json, r) => {
-            var cookies;
-            if (!r) {
-                console.log(e);
-                return setTimeout(() => {
-                    getCookies(callback);
-                }, 500);
-            }
-            if (r.headers['set-cookie']) {
-                cookies = r.headers['set-cookie'];
-            }
-            this._cookies = { };
-            cookies.forEach((line) => {
-                var cookie = line.split(';')[0].split('=');
-                this._cookies[cookie[0]] = cookie[1];
-            });
-            callback(null, cookies);
+            this._cookies = json;
+            callback(null, json);
         });
     }
     
